@@ -4,9 +4,9 @@ pragma solidity ^0.8.20;
 import {Script} from "forge-std/Script.sol";
 
 contract HelperConfig is Script {
-    //////////////
-    // constant //
-    //////////////
+    /*//////////////////////////////////////////////////////////////
+                                CONSTANT
+    //////////////////////////////////////////////////////////////*/
     uint256 public constant DECIMALS = 18;
     uint256 public constant MAX_SUPPLY = (10 ** 9) * (10 ** DECIMALS);
     uint256 public constant FUNDING_GOAL = 30 * (10 ** DECIMALS);

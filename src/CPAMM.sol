@@ -4,37 +4,40 @@ pragma solidity ^0.8.20;
 import {IERC20} from "@openzeppelin-contracts-5.0.2/token/ERC20/IERC20.sol";
 
 contract CPAMM {
-    ///////////////////////////
-    // immutables & constant //
-    ///////////////////////////
+    /*//////////////////////////////////////////////////////////////
+                        IMMUTABLES & CONSTANT
+    //////////////////////////////////////////////////////////////*/
     IERC20 public immutable token0;
     IERC20 public immutable token1;
     uint256 public constant FEE = 3; // 0.3%
 
-    ////////////////////
-    // state variable //
-    ////////////////////
+    /*//////////////////////////////////////////////////////////////
+                             STATE VARIABLE
+    //////////////////////////////////////////////////////////////*/
     uint256 public reserve0;
     uint256 public reserve1;
 
     uint256 public totalSupply;
     mapping(address => uint256) public balanceOf;
 
-    ///////////
-    // error //
-    ///////////
+    /*//////////////////////////////////////////////////////////////
+                                 ERROR
+    //////////////////////////////////////////////////////////////*/
     error CPAMM__NotValidToken();
     error CPAMM__MustBeGreaterThanZero();
     error CPAMM__ManipulatePrice();
 
-    /////////////////
-    // constructor //
-    /////////////////
+    /*//////////////////////////////////////////////////////////////
+                              CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
     constructor(address _token0, address _token1) {
         token0 = IERC20(_token0);
         token1 = IERC20(_token1);
     }
 
+    /*//////////////////////////////////////////////////////////////
+                            PUBLIC FUNCTION
+    //////////////////////////////////////////////////////////////*/
     function swap(address _tokenIn, uint256 _amountIn) external returns (uint256 amountOut) {
         if (_tokenIn != address(token0) && _tokenIn != address(token1)) {
             revert CPAMM__NotValidToken();
@@ -113,9 +116,9 @@ contract CPAMM {
         token1.transfer(msg.sender, amount1);
     }
 
-    //////////////////////////////////
-    // private && internal function //
-    //////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
+                       PRIVATE && INTERNAL FUNCTION
+    //////////////////////////////////////////////////////////////*/
     function _mint(address _to, uint256 _amount) private {
         totalSupply = totalSupply + _amount;
         balanceOf[_to] = balanceOf[_to] + _amount;
@@ -131,9 +134,9 @@ contract CPAMM {
         reserve1 = _reserve1;
     }
 
-    /////////////////////
-    // helper function //
-    /////////////////////
+    /*//////////////////////////////////////////////////////////////
+                            HELPER FUNCTION
+    //////////////////////////////////////////////////////////////*/
     function calculateAmountOut(uint256 _amountIn, uint256 _reserveIn, uint256 _reserveOut)
         public
         pure

@@ -6,25 +6,25 @@ import {LiquidityPairs} from "./LiquidityPairs.sol";
 import {IERC20} from "@openzeppelin-contracts-5.0.2/token/ERC20/IERC20.sol";
 
 contract TokenFactory {
-    ////////////
-    // events //
-    ////////////
+    /*//////////////////////////////////////////////////////////////
+                                 EVENTS
+    //////////////////////////////////////////////////////////////*/
     event TokenCreated(address indexed tokenAddress, string indexed name, string indexed ticker);
 
-    ///////////////////////
-    // constant variable //
-    ///////////////////////
+    /*//////////////////////////////////////////////////////////////
+                                CONSTANT
+    //////////////////////////////////////////////////////////////*/
     uint256 public constant DECIMALS = 18;
     uint256 public constant MAX_SUPPLY = (10 ** 9) * (10 ** DECIMALS);
 
-    ////////////////////
-    // state variable //
-    ////////////////////
+    /*//////////////////////////////////////////////////////////////
+                             STATE VARIABLE
+    //////////////////////////////////////////////////////////////*/
     address public tokenAddress;
 
-    ///////////////////////
-    // external function //
-    ///////////////////////
+    /*//////////////////////////////////////////////////////////////
+                           EXTERNAL FUNCTION
+    //////////////////////////////////////////////////////////////*/
 
     /**
      * @dev create a new token and liquidity pair
@@ -40,9 +40,9 @@ contract TokenFactory {
         return (tokenAddress, liquidityPairsAddress);
     }
 
-    ///////////////////////
-    // internal function //
-    ///////////////////////
+    /*//////////////////////////////////////////////////////////////
+                           INTERNAL FUNCTION
+    //////////////////////////////////////////////////////////////*/
     function createLiquidityPair(address newToken) internal returns (address) {
         LiquidityPairs liquidityPairs = new LiquidityPairs(newToken);
         IERC20(tokenAddress).transfer(address(liquidityPairs), MAX_SUPPLY);

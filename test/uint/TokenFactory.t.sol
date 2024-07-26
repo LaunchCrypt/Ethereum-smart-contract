@@ -8,6 +8,9 @@ import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {IERC20} from "@openzeppelin-contracts-5.0.2/token/ERC20/IERC20.sol";    
 
 contract TokenFactoryTest is Test {
+    /*//////////////////////////////////////////////////////////////
+                                 SET UP
+    //////////////////////////////////////////////////////////////*/    
     uint256 public initialMint;
     TokenFactory public tokenFactory;
     DeployTokenFactory public deployer;
@@ -21,7 +24,10 @@ contract TokenFactoryTest is Test {
         helperConfig = new HelperConfig();
         initialMint = helperConfig.MAX_SUPPLY();
     }
-
+    
+    /*//////////////////////////////////////////////////////////////
+                           TEST CREATE TOKEN
+    //////////////////////////////////////////////////////////////*/
     function testCreateToken() public {
         vm.startPrank(user);
         (address tokenAddress,) = tokenFactory.createToken("Test Token", "TT");

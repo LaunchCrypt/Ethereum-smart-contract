@@ -9,9 +9,9 @@ import {TokenFactory} from "../../src/TokenFactory.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
 
 contract LiquidityPairsTest is Test {
-    /////////////////
-    // set up test //
-    /////////////////
+    /*//////////////////////////////////////////////////////////////
+                                 SET UP
+    //////////////////////////////////////////////////////////////*/
     uint256 public decimal;
     uint256 public maxSupply;
     uint256 public virtualETH;
@@ -40,9 +40,9 @@ contract LiquidityPairsTest is Test {
         virtualETH = helperConfig.INITIAL_VIRTUAL_ETH();
     }
 
-    ////////////////////////
-    // test buy function  //
-    ////////////////////////
+    /*//////////////////////////////////////////////////////////////
+                                TEST BUY
+    //////////////////////////////////////////////////////////////*/
     function testBuy() public {
         vm.startPrank(user);
         liquidityPairs.buy{value: AMOUNT_IN}();
@@ -72,9 +72,9 @@ contract LiquidityPairsTest is Test {
         vm.stopPrank();
     }
 
-    ////////////////////////
-    // test sell function //
-    ////////////////////////
+    /*//////////////////////////////////////////////////////////////
+                               TEST SELL
+    //////////////////////////////////////////////////////////////*/
     function testSell() public {
         // buy token first
         vm.startPrank(user);
@@ -120,9 +120,9 @@ contract LiquidityPairsTest is Test {
         vm.stopPrank();
     }
 
-    //////////////////////////////////////
-    // test calculateAmountOut function //
-    //////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
+                       TEST CALCULATE AMOUNT OUT
+    //////////////////////////////////////////////////////////////*/
     function testGetAmountOut() public {
         vm.startPrank(user);
         uint256 actualAmountOut = liquidityPairs.calculateAmountOut(AMOUNT_IN, virtualETH, maxSupply);

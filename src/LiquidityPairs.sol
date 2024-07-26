@@ -2,9 +2,9 @@
 pragma solidity ^0.8.20;
 
 contract LiquidityPairs {
-    //////////////
-    // constant //
-    //////////////
+    /*//////////////////////////////////////////////////////////////
+                                CONSTANT
+    //////////////////////////////////////////////////////////////*/
     uint256 public constant DECIMALS = 18;
     uint256 public constant MAX_SUPPLY = (10 ** 9) * (10 ** DECIMALS);
     uint256 public constant FUNDING_GOAL = 30 * (10 ** DECIMALS);
@@ -12,40 +12,40 @@ contract LiquidityPairs {
     uint256 public constant MINIUM_TOKEN_LIQUIDITY = MAX_SUPPLY * 20 / 100;
     uint256 public constant FEE = 3; // 0.3%
 
-    ////////////////////
-    // state variable //
-    ////////////////////
+    /*//////////////////////////////////////////////////////////////
+                             STATE VARIABLE
+    //////////////////////////////////////////////////////////////*/
     address public tokenA;
     uint256 public tokenReserve;
     uint256 public collateral;
     mapping(address user => uint256 balance) public balances;
     bool public fundingGoalReached;
 
-    ///////////
-    // error //
-    ///////////
+    /*//////////////////////////////////////////////////////////////
+                                 ERROR
+    //////////////////////////////////////////////////////////////*/
     error LiquidityPairs__InsufficientFunds();
     error LiquidityPairs__MustBeGreaterThanZero();
     error LiquidityPairs__PairAlreadyLock();
     error LiquidityPairs__InsufficientLiquidity();
 
-    ///////////
-    // event //
-    ///////////
+    /*//////////////////////////////////////////////////////////////
+                                 EVENTS
+    //////////////////////////////////////////////////////////////*/
     event buyToken(address indexed user, uint256 amountIn, uint256 amountOut);
 
-    /////////////////
-    // constructor //
-    /////////////////
+    /*//////////////////////////////////////////////////////////////
+                              CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
     constructor(address _tokenA) {
         tokenA = _tokenA;
         collateral = INITIAL_VIRTUAL_ETH;
         tokenReserve = MAX_SUPPLY;
     }
 
-    ///////////////////////
-    // external function //
-    ///////////////////////
+    /*//////////////////////////////////////////////////////////////
+                           EXTERNAL FUNCTION
+    //////////////////////////////////////////////////////////////*/
 
     /**
      @dev user buy tokenA with ETH
@@ -95,9 +95,9 @@ contract LiquidityPairs {
         emit buyToken(msg.sender, _amountIn, amountOut);
     }
 
-    /////////////////////
-    // helper function //
-    /////////////////////
+    /*//////////////////////////////////////////////////////////////
+                            HELPER FUNCTION
+    //////////////////////////////////////////////////////////////*/
     function calculateAmountOut(uint256 _amountIn, uint256 _reserveIn, uint256 _reserveOut)
         public
         pure
