@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {IERC20} from "@openzeppelin-contracts-5.0.2/token/ERC20/IERC20.sol";
+import {IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 contract CPAMM {
     /*//////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ contract CPAMM {
         updateReserve(token0.balanceOf(address(this)), token1.balanceOf(address(this)));
     }
 
-    function removeLiquidity(uint256 _shares) external returns(uint256 amount0, uint256 amount1 ){
+    function removeLiquidity(uint256 _shares) external returns (uint256 amount0, uint256 amount1) {
         // calculate amount0 and amount1 to withdraw
         /*
         dx = s / T * x
@@ -102,8 +102,8 @@ contract CPAMM {
         */
         uint256 bal0 = token0.balanceOf(address(this));
         uint256 bal1 = token1.balanceOf(address(this));
-        amount0 = (_shares* bal0) / totalSupply;
-        amount1 = (_shares* bal1) / totalSupply;
+        amount0 = (_shares * bal0) / totalSupply;
+        amount1 = (_shares * bal1) / totalSupply;
         if (amount0 <= 0 || amount1 <= 0) {
             revert CPAMM__MustBeGreaterThanZero();
         }
@@ -112,7 +112,7 @@ contract CPAMM {
         // update reserve
         updateReserve(bal0 - amount0, bal1 - amount1);
         // transfer token tone to sender
-        token0.transfer(msg.sender, amount0); 
+        token0.transfer(msg.sender, amount0);
         token1.transfer(msg.sender, amount1);
     }
 

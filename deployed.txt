@@ -1,0 +1,5 @@
+--------------Anvil--------------
+TokenFactory: 0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e
+
+--------------Fuji--------------
+TokenFactory: 0xA10De9168FCa7B0e9a45C4aA35A41063f265aBDE

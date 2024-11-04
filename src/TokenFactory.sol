@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Token} from "./Token.sol";
 import {LiquidityPairs} from "./LiquidityPairs.sol";
-import {IERC20} from "@openzeppelin-contracts-5.0.2/token/ERC20/IERC20.sol";
+import {IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 contract TokenFactory {
     /*//////////////////////////////////////////////////////////////

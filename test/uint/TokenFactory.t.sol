@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {TokenFactory} from "../../src/TokenFactory.sol";
 import {DeployTokenFactory} from "../../script/DeployTokenFactory.s.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
-import {IERC20} from "@openzeppelin-contracts-5.0.2/token/ERC20/IERC20.sol";    
+import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";    
 
 contract TokenFactoryTest is Test {
     /*//////////////////////////////////////////////////////////////
