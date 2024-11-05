@@ -24,3 +24,8 @@ anvil:
 	
 compile:
 	forge compile
+
+verify-contract:
+	forge verify-contract 0x40812cDE6F279A97A43b82824bf3CfD022465b2d LiquidityPairs --rpc-url $(RPC_URL) --show-standard-json-input
+
+

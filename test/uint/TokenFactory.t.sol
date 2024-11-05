@@ -5,12 +5,13 @@ import {Test} from "forge-std/Test.sol";
 import {TokenFactory} from "../../src/TokenFactory.sol";
 import {DeployTokenFactory} from "../../script/DeployTokenFactory.s.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
-import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";    
+import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 contract TokenFactoryTest is Test {
     /*//////////////////////////////////////////////////////////////
                                  SET UP
-    //////////////////////////////////////////////////////////////*/    
+    //////////////////////////////////////////////////////////////*/
+    uint256 constant MAX_SUPPLY = 1000000000 * 10 ** 18;
     uint256 public initialMint;
     TokenFactory public tokenFactory;
     DeployTokenFactory public deployer;
@@ -24,15 +25,15 @@ contract TokenFactoryTest is Test {
         helperConfig = new HelperConfig();
         initialMint = helperConfig.MAX_SUPPLY();
     }
-    
+
     /*//////////////////////////////////////////////////////////////
                            TEST CREATE TOKEN
     //////////////////////////////////////////////////////////////*/
     function testCreateToken() public {
         vm.startPrank(user);
-        (address tokenAddress,) = tokenFactory.createToken("Test Token", "TT");
+        (address tokenAddress,) = tokenFactory.createToken("Test Token", "TT", MAX_SUPPLY);
         vm.stopPrank();
-        
+
         uint256 expectedTotalSupply = initialMint;
         uint256 actualTotalSupply = IERC20(tokenAddress).totalSupply();
 

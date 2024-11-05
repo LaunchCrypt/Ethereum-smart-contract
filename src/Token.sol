@@ -5,24 +5,10 @@ import {ERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.s
 
 contract Token is ERC20 {
     /*//////////////////////////////////////////////////////////////
-                                CONSTANT
-    //////////////////////////////////////////////////////////////*/
-    uint256 public constant DECIMALS = 18;
-    // 1 billion tokens
-    uint256 public constant MAX_SUPPLY = (10 ** 9) * (10 ** DECIMALS);
-
-    /*//////////////////////////////////////////////////////////////
-                                 ERROR
-    //////////////////////////////////////////////////////////////*/
-    error Token__MaxSupplyExceeded();
-
-    /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
-    constructor(string memory name, string memory ticker)
-        ERC20(name, ticker)
-    {
+    constructor(string memory name, string memory ticker, uint256 maxSupply) ERC20(name, ticker) {
         // sender is token factory
-        _mint(msg.sender, MAX_SUPPLY);
+        _mint(msg.sender, maxSupply);
     }
 }

@@ -12,6 +12,8 @@ contract LiquidityPairsTest is Test {
     /*//////////////////////////////////////////////////////////////
                                  SET UP
     //////////////////////////////////////////////////////////////*/
+    uint256 constant MAX_SUPPLY = 1000000000 * 10 ** 18;
+
     uint256 public decimal;
     uint256 public maxSupply;
     uint256 public virtualETH;
@@ -30,7 +32,7 @@ contract LiquidityPairsTest is Test {
         deployer = new DeployTokenFactory();
         tokenFactory = deployer.run();
 
-        (, address liquidityPairsAddress) = tokenFactory.createToken("MyToken", "MTK");
+        (, address liquidityPairsAddress) = tokenFactory.createToken("MyToken", "MTK", MAX_SUPPLY);
         liquidityPairs = LiquidityPairs(liquidityPairsAddress);
 
         helperConfig = new HelperConfig();
@@ -81,7 +83,7 @@ contract LiquidityPairsTest is Test {
         liquidityPairs.buy{value: AMOUNT_IN}();
         vm.stopPrank();
         uint256 userBalanceInPool = liquidityPairs.balances(user);
-        // sell token 
+        // sell token
         vm.startPrank(user);
         liquidityPairs.sell(userBalanceInPool);
         vm.stopPrank();
@@ -113,7 +115,7 @@ contract LiquidityPairsTest is Test {
         vm.startPrank(user);
         liquidityPairs.buy{value: 30 ether}();
         vm.stopPrank();
-        // sell token 
+        // sell token
         vm.startPrank(user);
         vm.expectRevert(LiquidityPairs.LiquidityPairs__PairAlreadyLock.selector);
         liquidityPairs.sell(1);
