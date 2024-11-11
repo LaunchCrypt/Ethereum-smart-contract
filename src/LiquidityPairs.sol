@@ -48,7 +48,7 @@ contract LiquidityPairs {
     /**
      @dev user buy tokenA with ETH
      */
-    function buy() external payable {
+    function buy(uint256 _amountIn) external payable {
         // check condition
         if (fundingGoalReached){
             revert LiquidityPairs__PairAlreadyLock();
@@ -57,7 +57,7 @@ contract LiquidityPairs {
         if (msg.value <= 0){ 
             revert LiquidityPairs__InsufficientFunds();
         }
-        uint256 amountOut = calculateAmountOut(msg.value, collateral, tokenReserve);
+        uint256 amountOut = calculateAmountOut(_amountIn, collateral, tokenReserve);
         if (amountOut <= 0){
             revert LiquidityPairs__MustBeGreaterThanZero();
         }
