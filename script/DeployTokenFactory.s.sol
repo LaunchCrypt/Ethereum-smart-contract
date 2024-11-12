@@ -6,9 +6,8 @@ import {TokenFactory} from "../src/TokenFactory.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 
 contract DeployTokenFactory is Script {
-    function run() public returns (TokenFactory) {
-        HelperConfig helperConfig = new HelperConfig();
-
+    HelperConfig helperConfig = new HelperConfig();
+    function run() public returns(TokenFactory) {
         vm.startBroadcast();
         TokenFactory tokenFactory = new TokenFactory();
         vm.stopBroadcast();
@@ -16,7 +15,7 @@ contract DeployTokenFactory is Script {
         // Write the contract address to a file
         address contractAddress = address(tokenFactory);
         helperConfig.writeDeployInfo("TokenFactory", contractAddress);
-        
+
         return tokenFactory;
     }
 }

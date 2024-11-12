@@ -10,6 +10,7 @@ contract TokenFactory {
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
     event TokenCreated(address indexed tokenAddress, string indexed name, string indexed ticker);
+    event LiquidityPairsCreated(address indexed liquidityPairsAddress);
 
     /*//////////////////////////////////////////////////////////////
                                 CONSTANT
@@ -40,6 +41,7 @@ contract TokenFactory {
         tokenAddress = address(newToken);
         address liquidityPairsAddress = createLiquidityPair(tokenAddress, maxSupply);
         emit TokenCreated(address(newToken), name, ticker);
+        emit LiquidityPairsCreated(liquidityPairsAddress);
         return (tokenAddress, liquidityPairsAddress);
     }
 

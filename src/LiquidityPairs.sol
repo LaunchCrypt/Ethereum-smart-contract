@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
+import {IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 contract LiquidityPairs {
     /*//////////////////////////////////////////////////////////////
@@ -48,7 +49,7 @@ contract LiquidityPairs {
     /**
      @dev user buy tokenA with ETH
      */
-    function buy(uint256 _amountIn) external payable {
+    function buy() external payable{
         // check condition
         if (fundingGoalReached){
             revert LiquidityPairs__PairAlreadyLock();
@@ -57,10 +58,11 @@ contract LiquidityPairs {
         if (msg.value <= 0){ 
             revert LiquidityPairs__InsufficientFunds();
         }
-        uint256 amountOut = calculateAmountOut(_amountIn, collateral, tokenReserve);
+        uint256 amountOut = calculateAmountOut(msg.value, collateral, tokenReserve);
         if (amountOut <= 0){
             revert LiquidityPairs__MustBeGreaterThanZero();
         }
+
 
         // update state
         balances[msg.sender] += amountOut;
@@ -69,10 +71,10 @@ contract LiquidityPairs {
         if (collateral > FUNDING_GOAL){
             fundingGoalReached = true;
         }
-        emit buyToken(msg.sender, msg.value, amountOut);
+        emit buyToken(msg.sender, msg.value , amountOut);
     }
 
-    function sell(uint256 _amountIn) external payable {
+    function sell(uint256 _amountIn) external {
         // check condition
         if(fundingGoalReached){
             revert LiquidityPairs__PairAlreadyLock();
@@ -89,7 +91,7 @@ contract LiquidityPairs {
         balances[msg.sender] -= _amountIn;
         collateral -= amountOut;
         tokenReserve += _amountIn;
-        payable(msg.sender).transfer(amountOut);
+        IERC20(tokenA).transfer(address(this), _amountIn);
         emit buyToken(msg.sender, _amountIn, amountOut);
     }
 
