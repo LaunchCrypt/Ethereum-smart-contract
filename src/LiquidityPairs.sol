@@ -17,7 +17,6 @@ contract LiquidityPairs {
     address public tokenA;
     uint256 public tokenReserve;
     uint256 public collateral;
-    mapping(address user => uint256 balance) public balances;
     bool public fundingGoalReached;
 
     /*//////////////////////////////////////////////////////////////
@@ -65,8 +64,8 @@ contract LiquidityPairs {
 
 
         // update state
-        balances[msg.sender] += amountOut;
-        collateral += msg.value;
+        IERC20(tokenA).transfer(msg.sender, amountOut);
+        collateral += (msg.value * (1000 - FEE)) / 1000;
         tokenReserve -= amountOut;
         if (collateral > FUNDING_GOAL){
             fundingGoalReached = true;
@@ -86,12 +85,12 @@ contract LiquidityPairs {
         if (amountOut <= 0){
             revert LiquidityPairs__InsufficientFunds();
         }
-        
+        // approve process required in frontend
         // update state
-        balances[msg.sender] -= _amountIn;
+        IERC20(tokenA).transferFrom(msg.sender, address(this), _amountIn);
+        payable(msg.sender).transfer(amountOut);
         collateral -= amountOut;
-        tokenReserve += _amountIn;
-        IERC20(tokenA).transfer(address(this), _amountIn);
+        tokenReserve += (_amountIn * (1000 - FEE)) / 1000;
         emit buyToken(msg.sender, _amountIn, amountOut);
     }
 
@@ -110,3 +109,5 @@ contract LiquidityPairs {
         return amountOut;
     }
 }
+
+
