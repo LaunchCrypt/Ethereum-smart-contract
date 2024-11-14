@@ -7,8 +7,8 @@ contract LiquidityPairs {
                                 CONSTANT
     //////////////////////////////////////////////////////////////*/
     uint256 public constant DECIMALS = 18;
-    uint256 public constant FUNDING_GOAL = 30 * (10 ** DECIMALS);
-    uint256 public constant INITIAL_VIRTUAL_ETH = 3 * (10 ** DECIMALS);
+    uint256 public constant FUNDING_GOAL = 1150 * (10 ** DECIMALS);
+    uint256 public constant INITIAL_VIRTUAL_AVAX = 100 * (10 ** DECIMALS);
     uint256 public constant FEE = 3; // 0.3%
 
     /*//////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ contract LiquidityPairs {
     //////////////////////////////////////////////////////////////*/
     constructor(address _tokenA, uint256 maxSupply) {
         tokenA = _tokenA;
-        collateral = INITIAL_VIRTUAL_ETH;
+        collateral = INITIAL_VIRTUAL_AVAX;
         tokenReserve = maxSupply;
     }
 

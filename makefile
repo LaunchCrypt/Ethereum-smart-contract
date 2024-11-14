@@ -26,8 +26,8 @@ compile:
 	forge compile
 
 verify-contract:
-	forge verify-contract 0xe2131c8675f525948C09bf1AdE46F64F569e4e61 LiquidityPairs --rpc-url $(RPC_URL)
+	forge verify-contract 0x4AC2F7C9D5Be84837e1B107A6E3Ae0533c54B386 LiquidityPairs --rpc-url $(RPC_URL)
 
 verify-tokenFactory:
-	forge verify-contract 0xDC243Dd848e5208586C7803fD89E90C44F4B7C07 TokenFactory --rpc-url $(RPC_URL)
+	forge verify-contract 0x303078b83c52Ee1cCa682C54cC6c075267c2256e TokenFactory --rpc-url $(RPC_URL)
 
