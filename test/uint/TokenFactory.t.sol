@@ -31,7 +31,7 @@ contract TokenFactoryTest is Test {
     //////////////////////////////////////////////////////////////*/
     function testCreateToken() public {
         vm.startPrank(user);
-        (address tokenAddress,) = tokenFactory.createToken("Test Token", "TT", MAX_SUPPLY);
+        (address tokenAddress,) = tokenFactory.createToken("Test Token", "TT", MAX_SUPPLY, 3);
         vm.stopPrank();
 
         uint256 expectedTotalSupply = initialMint;

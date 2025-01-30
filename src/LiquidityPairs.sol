@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
+
 import {IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 contract LiquidityPairs {
@@ -9,7 +10,6 @@ contract LiquidityPairs {
     uint256 public constant DECIMALS = 18;
     uint256 public constant FUNDING_GOAL = 1150 * (10 ** DECIMALS);
     uint256 public constant INITIAL_VIRTUAL_AVAX = 100 * (10 ** DECIMALS);
-    uint256 public constant FEE = 3; // 0.3%
 
     /*//////////////////////////////////////////////////////////////
                              STATE VARIABLE
@@ -18,6 +18,8 @@ contract LiquidityPairs {
     uint256 public tokenReserve;
     uint256 public collateral;
     bool public fundingGoalReached;
+    uint256 public s_fee;
+    address public owner;
 
     /*//////////////////////////////////////////////////////////////
                                  ERROR
@@ -26,6 +28,7 @@ contract LiquidityPairs {
     error LiquidityPairs__MustBeGreaterThanZero();
     error LiquidityPairs__PairAlreadyLock();
     error LiquidityPairs__InsufficientLiquidity();
+    error LiquidityPairs__SurpassSlippage();
 
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
@@ -35,10 +38,12 @@ contract LiquidityPairs {
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
-    constructor(address _tokenA, uint256 maxSupply) {
+    constructor(address _tokenA, uint256 maxSupply, uint256 fee, address _owner) {
         tokenA = _tokenA;
         collateral = INITIAL_VIRTUAL_AVAX;
         tokenReserve = maxSupply;
+        s_fee = fee;
+        owner = _owner;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -46,51 +51,67 @@ contract LiquidityPairs {
     //////////////////////////////////////////////////////////////*/
 
     /**
-     @dev user buy tokenA with ETH
+     * @dev user buy tokenA with ETH
      */
-    function buy() external payable{
+    function buy(uint256 amountOutMin) external payable {
         // check condition
-        if (fundingGoalReached){
+        if (fundingGoalReached) {
             revert LiquidityPairs__PairAlreadyLock();
         }
 
-        if (msg.value <= 0){ 
+        if (msg.value <= 0) {
             revert LiquidityPairs__InsufficientFunds();
         }
-        uint256 amountOut = calculateAmountOut(msg.value, collateral, tokenReserve);
-        if (amountOut <= 0){
+        uint256 amountInAfterFee = msg.value * (1000 - s_fee) / 1000;
+
+        // transfer fee for owner;
+
+        payable(owner).transfer(msg.value - amountInAfterFee);
+
+        uint256 amountOut = calculateAmountOut(amountInAfterFee, collateral, tokenReserve);
+        if (amountOut < amountOutMin) {
+            revert LiquidityPairs__SurpassSlippage();
+        }
+        if (amountOut <= 0) {
             revert LiquidityPairs__MustBeGreaterThanZero();
         }
 
-
         // update state
         IERC20(tokenA).transfer(msg.sender, amountOut);
-        collateral += (msg.value * (1000 - FEE)) / 1000;
+        collateral += amountInAfterFee;
         tokenReserve -= amountOut;
-        if (collateral > FUNDING_GOAL){
+        if (collateral > FUNDING_GOAL) {
             fundingGoalReached = true;
         }
-        emit buyToken(msg.sender, msg.value , amountOut);
+        emit buyToken(msg.sender, amountInAfterFee, amountOut);
     }
 
-    function sell(uint256 _amountIn) external {
+    function sell(uint256 _amountIn, uint256 amountOutMin) external {
         // check condition
-        if(fundingGoalReached){
+        if (fundingGoalReached) {
             revert LiquidityPairs__PairAlreadyLock();
         }
         if (_amountIn <= 0) {
             revert LiquidityPairs__MustBeGreaterThanZero();
         }
         uint256 amountOut = calculateAmountOut(_amountIn, tokenReserve, collateral);
-        if (amountOut <= 0){
+        uint256 actualAmountout = amountOut * (1000 - s_fee) / 1000;
+
+        if (actualAmountout < amountOutMin) {
+            revert LiquidityPairs__SurpassSlippage();
+        }
+        // transfer fee for owner;
+        payable(owner).transfer(amountOut - actualAmountout);
+
+        if (amountOut <= 0) {
             revert LiquidityPairs__InsufficientFunds();
         }
         // approve process required in frontend
         // update state
         IERC20(tokenA).transferFrom(msg.sender, address(this), _amountIn);
-        payable(msg.sender).transfer(amountOut);
+        payable(msg.sender).transfer(actualAmountout);
         collateral -= amountOut;
-        tokenReserve += (_amountIn * (1000 - FEE)) / 1000;
+        tokenReserve += _amountIn;
         emit buyToken(msg.sender, _amountIn, amountOut);
     }
 
@@ -102,12 +123,12 @@ contract LiquidityPairs {
         pure
         returns (uint256)
     {
-        uint256 amountInWithFee = (_amountIn * (1000 - FEE)) / 1000; // 0.3% fee;
-
         // dy = ydx / (x + dx)
-        uint256 amountOut = (_reserveOut * amountInWithFee) / (_reserveIn + amountInWithFee);
+        uint256 amountOut = (_reserveOut * _amountIn) / (_reserveIn + _amountIn);
         return amountOut;
     }
+
+    function getFee() external view returns (uint256) {
+        return s_fee;
+    }
 }
-
-

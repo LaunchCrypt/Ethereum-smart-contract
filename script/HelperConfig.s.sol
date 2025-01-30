@@ -68,7 +68,7 @@ contract HelperConfig is Script {
     function writeDeployInfo(string memory contractName, address contractAddress) public {
         string memory network = activeNetworkConfig.network;
         string memory path = "deployed.txt";
-        
+
         // Read existing content or initialize empty string
         string memory content;
         try vm.readFile(path) returns (string memory fileContent) {
@@ -78,47 +78,22 @@ contract HelperConfig is Script {
         }
 
         // Prepare the new entry
-        string memory deployInfo = string.concat(
-            contractName,
-            ": ",
-            vm.toString(contractAddress)
-        );
+        string memory deployInfo = string.concat(contractName, ": ", vm.toString(contractAddress));
 
         // Format network header
-        string memory networkHeader = string.concat(
-            "--------------",
-            network,
-            "--------------"
-        );
+        string memory networkHeader = string.concat("--------------", network, "--------------");
 
         // Check if network section exists and create new content
         if (bytes(content).length == 0) {
             // First entry in the file
-            content = string.concat(
-                networkHeader,
-                "\n",
-                deployInfo,
-                "\n"
-            );
+            content = string.concat(networkHeader, "\n", deployInfo, "\n");
         } else {
             if (!_containsString(content, networkHeader)) {
                 // Add new network section
-                content = string.concat(
-                    content,
-                    "\n",
-                    networkHeader,
-                    "\n",
-                    deployInfo,
-                    "\n"
-                );
+                content = string.concat(content, "\n", networkHeader, "\n", deployInfo, "\n");
             } else {
                 // Update existing network section
-                content = _updateNetworkSection(
-                    content,
-                    networkHeader,
-                    contractName,
-                    deployInfo
-                );
+                content = _updateNetworkSection(content, networkHeader, contractName, deployInfo);
             }
         }
 
@@ -126,17 +101,17 @@ contract HelperConfig is Script {
         vm.writeFile(path, content);
     }
 
-     function _containsString(string memory source, string memory search) internal pure returns (bool) {
+    function _containsString(string memory source, string memory search) internal pure returns (bool) {
         bytes memory sourceBytes = bytes(source);
         bytes memory searchBytes = bytes(search);
-        
+
         if (searchBytes.length > sourceBytes.length) {
             return false;
         }
 
-        for (uint i = 0; i < sourceBytes.length - searchBytes.length + 1; i++) {
+        for (uint256 i = 0; i < sourceBytes.length - searchBytes.length + 1; i++) {
             bool found = true;
-            for (uint j = 0; j < searchBytes.length; j++) {
+            for (uint256 j = 0; j < searchBytes.length; j++) {
                 if (sourceBytes[i + j] != searchBytes[j]) {
                     found = false;
                     break;
@@ -159,10 +134,10 @@ contract HelperConfig is Script {
         string memory updatedContent = "";
         bool foundNetwork = false;
         bool updatedContract = false;
-        
+
         // Find network section and update
         string memory line = "";
-        for (uint i = 0; i < contentBytes.length; i++) {
+        for (uint256 i = 0; i < contentBytes.length; i++) {
             if (contentBytes[i] == bytes1("\n") || i == contentBytes.length - 1) {
                 // Process line
                 if (_containsString(line, networkHeader)) {
