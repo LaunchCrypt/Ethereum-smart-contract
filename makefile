@@ -19,8 +19,8 @@ endif
 deployTokenFactory:
 	forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $(RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) 
 
-deployLinearStaking:
-	forge script script/DeployLinearStaking.s.sol:DeployLinearStaking --rpc-url $(RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY)
+deployStaking:
+	forge script script/DeployStaking.s.sol:DeployStaking --rpc-url $(RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY)
 
 anvil:
 	forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url http://127.0.0.1:8545/ --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --broadcast

@@ -6,19 +6,21 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract LinearStaking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     struct Stake {
         uint256 amount;
         uint256 startTime;
-        uint256 endTime;
-        uint256 lastClaimTime;
+        uint256 duration;
     }
 
     // Constants
     uint256 public constant YEAR = 365 days;
-    uint256 public constant APR = 1000; // 10% APR, can be adjusted
     uint256 public minStakingDuration = 7 days;
     uint256 public maxStakingDuration = 365 days;
+    uint256[] public stakingPeriod = [30, 90, 180, 360];
+    uint256[] public APR = [10,32,70,150]; 
+
+    error Staking__WrongStakePeriod();
 
     // State variables
     mapping(address => Stake) public stakes;
@@ -48,25 +50,37 @@ contract LinearStaking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     // Modifiers
     modifier validateStakingDuration(uint256 duration) {
-        require(duration >= minStakingDuration && duration <= maxStakingDuration, "Invalid staking duration");
+        bool isValid = false;
+        for (uint256 i = 0; i < stakingPeriod.length; i++) {
+            if (duration == stakingPeriod[i]) {
+                isValid = true;
+            }
+        }
+        if (!isValid) {
+            revert Staking__WrongStakePeriod();
+        }
         _;
     }
 
     // Calculate rewards for a given stake
-    function calculateReward(Stake memory _stake) public view returns (uint256) {
+    function calculateReward(
+        Stake memory _stake
+    ) public view returns (uint256) {
         if (_stake.amount == 0) return 0;
+        uint256 staketime = block.timestamp - _stake.startTime;
 
-        uint256 endTime = block.timestamp > _stake.endTime ? _stake.endTime : block.timestamp;
-
-        uint256 lastClaim = _stake.lastClaimTime > _stake.startTime ? _stake.lastClaimTime : _stake.startTime;
-
-        if (lastClaim >= endTime) return 0;
-
-        uint256 stakingDuration = endTime - lastClaim;
-        uint256 yearlyReward = _stake.amount * APR / 10000; // APR is in basis points
-        uint256 reward = yearlyReward * stakingDuration / YEAR;
-
-        return reward;
+        if (staketime >= 60 * 60 * 24 * stakingPeriod[3]) {
+            return _stake.amount * APR[3] / 1000;
+        }
+        else if (staketime >= 60 * 60 * 24 * stakingPeriod[2]) {
+            return _stake.amount * APR[2] / 1000;
+        }
+        else if (staketime >= 60 * 60 * 24 * stakingPeriod[1]) {
+            return _stake.amount * APR[1] / 1000;
+        }
+        else {
+            return _stake.amount * APR[0] / 1000;
+        }
     }
 
     // View function to check pending rewards
@@ -75,15 +89,16 @@ contract LinearStaking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     }
 
     // Stake AVAX
-    function stake(uint256 _duration) external payable validateStakingDuration(_duration) {
+    function stake(
+        uint256 _duration
+    ) external payable validateStakingDuration(_duration) {
         require(msg.value > 0, "Cannot stake 0 AVAX");
         require(stakes[msg.sender].amount == 0, "Already staking");
 
         stakes[msg.sender] = Stake({
             amount: msg.value,
             startTime: block.timestamp,
-            endTime: block.timestamp + _duration,
-            lastClaimTime: block.timestamp
+            duration: _duration
         });
 
         totalStaked = totalStaked + msg.value;
@@ -95,7 +110,7 @@ contract LinearStaking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function withdraw() external {
         Stake storage userStake = stakes[msg.sender];
         require(userStake.amount > 0, "No active stake");
-        require(block.timestamp >= userStake.endTime, "Stake still locked");
+        require(block.timestamp >= userStake.startTime + 60 * 60 * 24 * stakingPeriod[0], "Minium stake time required");
 
         uint256 reward = calculateReward(userStake);
         uint256 amount = userStake.amount;
@@ -105,48 +120,33 @@ contract LinearStaking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         delete stakes[msg.sender];
 
         // Transfer staked amount and reward
-        (bool success,) = payable(msg.sender).call{value: amount + reward}("");
+        (bool success, ) = payable(msg.sender).call{value: amount + reward}("");
         require(success, "Transfer failed");
 
         emit Withdrawn(msg.sender, amount, reward);
     }
 
-    // Claim only rewards
-    function claimRewards() external {
-        Stake storage userStake = stakes[msg.sender];
-        require(userStake.amount > 0, "No active stake");
+    // // Claim only rewards
+    // function claimRewards() external {
+    //     Stake storage userStake = stakes[msg.sender];
+    //     require(userStake.amount > 0, "No active stake");
+    //     require(block.timestamp >= userStake.startTime + 60 * 60 * 24 * 30, "Minium stake time required");
+    //     uint256 reward = calculateReward(userStake);
+    //     require(reward > 0, "No rewards to claim");
 
-        uint256 reward = calculateReward(userStake);
-        require(reward > 0, "No rewards to claim");
+    //     (bool success, ) = payable(msg.sender).call{value: reward}("");
+    //     require(success, "Transfer failed");
 
-        userStake.lastClaimTime = block.timestamp;
-
-        (bool success,) = payable(msg.sender).call{value: reward}("");
-        require(success, "Transfer failed");
-
-        emit RewardClaimed(msg.sender, reward);
-    }
-
-    // Emergency withdraw function
-    function emergencyWithdraw() external {
-        Stake storage userStake = stakes[msg.sender];
-        require(userStake.amount > 0, "No active stake");
-
-        uint256 amount = userStake.amount;
-        totalStaked = totalStaked - amount;
-        delete stakes[msg.sender];
-
-        (bool success,) = payable(msg.sender).call{value: amount}("");
-        require(success, "Transfer failed");
-
-        emit Withdrawn(msg.sender, amount, 0);
-    }
+    //     emit RewardClaimed(msg.sender, reward);
+    // }
 
     // Admin functions
-    function updateStakingDurations(uint256 _minDuration, uint256 _maxDuration) external onlyOwner {
-        require(_minDuration <= _maxDuration, "Invalid durations");
-        minStakingDuration = _minDuration;
-        maxStakingDuration = _maxDuration;
+    function updateStakingSettings(
+        uint256[] memory _stakingPeriod,
+        uint256[] memory _apr
+    ) external onlyOwner {
+        stakingPeriod = _stakingPeriod;
+        APR = _apr;
     }
 
     // Function to receive AVAX
@@ -158,5 +158,7 @@ contract LinearStaking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     }
 
     // The following functions are overrides required by Solidity.
-    function _authorizeUpgrade(address _newImplementation) internal override onlyOwner {}
+    function _authorizeUpgrade(
+        address _newImplementation
+    ) internal override onlyOwner {}
 }
