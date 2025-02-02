@@ -126,19 +126,20 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         emit Withdrawn(msg.sender, amount, reward);
     }
 
-    // // Claim only rewards
-    // function claimRewards() external {
-    //     Stake storage userStake = stakes[msg.sender];
-    //     require(userStake.amount > 0, "No active stake");
-    //     require(block.timestamp >= userStake.startTime + 60 * 60 * 24 * 30, "Minium stake time required");
-    //     uint256 reward = calculateReward(userStake);
-    //     require(reward > 0, "No rewards to claim");
+    // Claim only rewards
+    function claimRewards() external {
+        Stake storage userStake = stakes[msg.sender];
+        require(userStake.amount > 0, "No active stake");
+        require(block.timestamp >= userStake.startTime + 60 * 60 * 24 * stakingPeriod[0], "Minium stake time required");
+        uint256 reward = calculateReward(userStake);
+        require(reward > 0, "No rewards to claim");
 
-    //     (bool success, ) = payable(msg.sender).call{value: reward}("");
-    //     require(success, "Transfer failed");
+        (bool success, ) = payable(msg.sender).call{value: reward}("");
+        require(success, "Transfer failed");
+        userStake.startTime = block.timestamp;
 
-    //     emit RewardClaimed(msg.sender, reward);
-    // }
+        emit RewardClaimed(msg.sender, reward);
+    }
 
     // Admin functions
     function updateStakingSettings(

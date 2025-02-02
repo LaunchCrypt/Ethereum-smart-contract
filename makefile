@@ -22,6 +22,10 @@ deployTokenFactory:
 deployStaking:
 	forge script script/DeployStaking.s.sol:DeployStaking --rpc-url $(RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY)
 
+upgradeStaking:
+	forge script script/UpgradeStaking.s.sol:UpgradeStaking --rpc-url $(RPC_URL) \
+	 --account defaultKey --sender 0xd2826132FBD5962338e2A37DdC5345A6fE3e6640 --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY)
+
 anvil:
 	forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url http://127.0.0.1:8545/ --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --broadcast
 
