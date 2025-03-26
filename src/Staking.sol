@@ -18,7 +18,7 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     uint256 public minStakingDuration = 7 days;
     uint256 public maxStakingDuration = 365 days;
     uint256[] public stakingPeriod = [30, 90, 180, 360];
-    uint256[] public APR = [10,32,70,150]; 
+    uint256[] public APR = [10, 32, 70, 150];
 
     error Staking__WrongStakePeriod();
 
@@ -63,23 +63,20 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     }
 
     // Calculate rewards for a given stake
-    function calculateReward(
-        Stake memory _stake
-    ) public view returns (uint256) {
+    function calculateReward(Stake memory _stake) public view returns (uint256) {
         if (_stake.amount == 0) return 0;
         uint256 staketime = block.timestamp - _stake.startTime;
 
         if (staketime >= 60 * 60 * 24 * stakingPeriod[3]) {
             return _stake.amount * APR[3] / 1000;
-        }
-        else if (staketime >= 60 * 60 * 24 * stakingPeriod[2]) {
+        } else if (staketime >= 60 * 60 * 24 * stakingPeriod[2]) {
             return _stake.amount * APR[2] / 1000;
-        }
-        else if (staketime >= 60 * 60 * 24 * stakingPeriod[1]) {
+        } else if (staketime >= 60 * 60 * 24 * stakingPeriod[1]) {
             return _stake.amount * APR[1] / 1000;
-        }
-        else {
+        } else if (staketime >= 60 * 60 * 24 * stakingPeriod[0]) {
             return _stake.amount * APR[0] / 1000;
+        } else {
+            return 0;
         }
     }
 
@@ -89,17 +86,11 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     }
 
     // Stake AVAX
-    function stake(
-        uint256 _duration
-    ) external payable validateStakingDuration(_duration) {
+    function stake(uint256 _duration) external payable validateStakingDuration(_duration) {
         require(msg.value > 0, "Cannot stake 0 AVAX");
         require(stakes[msg.sender].amount == 0, "Already staking");
 
-        stakes[msg.sender] = Stake({
-            amount: msg.value,
-            startTime: block.timestamp,
-            duration: _duration
-        });
+        stakes[msg.sender] = Stake({amount: msg.value, startTime: block.timestamp, duration: _duration});
 
         totalStaked = totalStaked + msg.value;
 
@@ -110,7 +101,7 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function withdraw() external {
         Stake storage userStake = stakes[msg.sender];
         require(userStake.amount > 0, "No active stake");
-        require(block.timestamp >= userStake.startTime + 60 * 60 * 24 * stakingPeriod[0], "Minium stake time required");
+        require(block.timestamp >= userStake.startTime + 60 * 60 * 24 * 3, "Minium stake time required");
 
         uint256 reward = calculateReward(userStake);
         uint256 amount = userStake.amount;
@@ -120,7 +111,7 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         delete stakes[msg.sender];
 
         // Transfer staked amount and reward
-        (bool success, ) = payable(msg.sender).call{value: amount + reward}("");
+        (bool success,) = payable(msg.sender).call{value: amount + reward}("");
         require(success, "Transfer failed");
 
         emit Withdrawn(msg.sender, amount, reward);
@@ -134,7 +125,7 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         uint256 reward = calculateReward(userStake);
         require(reward > 0, "No rewards to claim");
 
-        (bool success, ) = payable(msg.sender).call{value: reward}("");
+        (bool success,) = payable(msg.sender).call{value: reward}("");
         require(success, "Transfer failed");
         userStake.startTime = block.timestamp;
 
@@ -142,10 +133,7 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     }
 
     // Admin functions
-    function updateStakingSettings(
-        uint256[] memory _stakingPeriod,
-        uint256[] memory _apr
-    ) external onlyOwner {
+    function updateStakingSettings(uint256[] memory _stakingPeriod, uint256[] memory _apr) external onlyOwner {
         stakingPeriod = _stakingPeriod;
         APR = _apr;
     }
@@ -159,7 +147,5 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     }
 
     // The following functions are overrides required by Solidity.
-    function _authorizeUpgrade(
-        address _newImplementation
-    ) internal override onlyOwner {}
+    function _authorizeUpgrade(address _newImplementation) internal override onlyOwner {}
 }

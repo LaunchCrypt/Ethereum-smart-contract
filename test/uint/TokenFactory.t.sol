@@ -5,6 +5,8 @@ import {Test} from "forge-std/Test.sol";
 import {TokenFactory} from "../../src/TokenFactory.sol";
 import {DeployTokenFactory} from "../../script/DeployTokenFactory.s.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
+import {Token} from "../../src/Token.sol";
+import {LiquidityPairs} from "../../src/LiquidityPairs.sol";
 import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 contract TokenFactoryTest is Test {
@@ -31,7 +33,8 @@ contract TokenFactoryTest is Test {
     //////////////////////////////////////////////////////////////*/
     function testCreateToken() public {
         vm.startPrank(user);
-        (address tokenAddress,) = tokenFactory.createToken("Test Token", "TT", MAX_SUPPLY, 3);
+        (address tokenAddress, address liquidityPairsAddress) =
+            tokenFactory.createToken("Test Token", "TT", MAX_SUPPLY, 3);
         vm.stopPrank();
 
         uint256 expectedTotalSupply = initialMint;
@@ -42,5 +45,8 @@ contract TokenFactoryTest is Test {
 
         assertEq(expectedBalanceOfFactory, actualBalanceOfFactory);
         assertEq(expectedTotalSupply, actualTotalSupply);
+        assertEq(LiquidityPairs(payable(liquidityPairsAddress)).s_fee(), 3);
+        assertEq(Token(tokenAddress).name(), "Test Token");
+        assertEq(Token(tokenAddress).symbol(), "TT");
     }
 }

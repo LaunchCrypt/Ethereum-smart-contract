@@ -25,15 +25,16 @@ contract LiquidityPairsTest is Test {
     HelperConfig public helperConfig;
 
     address user = makeAddr("USER");
+    address admin = makeAddr("ADMIN");
 
     function setUp() public {
         vm.deal(user, 100 ether);
 
         deployer = new DeployTokenFactory();
         tokenFactory = deployer.run();
-
+        vm.startPrank(admin);
         (, address liquidityPairsAddress) = tokenFactory.createToken("MyToken", "MTK", MAX_SUPPLY, 3);
-        liquidityPairs = LiquidityPairs(liquidityPairsAddress);
+        liquidityPairs = LiquidityPairs(payable(liquidityPairsAddress));
 
         helperConfig = new HelperConfig();
 
@@ -48,23 +49,25 @@ contract LiquidityPairsTest is Test {
     function testBuy() public {
         vm.startPrank(user);
         liquidityPairs.buy{value: AMOUNT_IN}(0);
+        assertEq(address(user).balance, 99 ether);
+        assertEq(address(liquidityPairs).balance, 0.997 ether);
+        assertEq(address(admin).balance, 0.003 ether);
         vm.stopPrank();
 
-        // uint256 userBalanceAfter = address(user).balance;
-        // uint256 userBalanceAfterExpected = 99 ether;
-        // uint256 actualBalance = liquidityPairs.balances(user);
-        // uint256 expectedBalance = 249437077808356267200400300;
-        // uint256 actualTokenReserve = liquidityPairs.tokenReserve();
-        // uint256 expectedTokenReserve = maxSupply - expectedBalance;
-        // uint256 actualCollateral = liquidityPairs.collateral();
-        // uint256 expectedCollateral = virtualETH + AMOUNT_IN;
+        //     uint256 userBalanceAfter = address(user).balance;
+        //     uint256 userBalanceAfterExpected = 99 ether;
+        //     uint256 expectedBalance = 249437077808356267200400300;
+        //     uint256 actualTokenReserve = liquidityPairs.tokenReserve();
+        //     uint256 expectedTokenReserve = maxSupply - expectedBalance;
+        //     uint256 actualCollateral = liquidityPairs.collateral();
+        //     uint256 expectedCollateral = virtualETH + AMOUNT_IN;
 
-        // assertEq(expectedBalance, actualBalance);
-        // assertEq(userBalanceAfter, userBalanceAfterExpected);
-        // assertEq(expectedTokenReserve, actualTokenReserve);
-        // assertEq(expectedCollateral, actualCollateral);
+        //     // assertEq(expectedBalance, actualBalance);
+        //     assertEq(userBalanceAfter, userBalanceAfterExpected);
+        //     assertEq(expectedTokenReserve, actualTokenReserve);
+        //     assertEq(expectedCollateral, actualCollateral);
+        // }
     }
-
     // function testBuyAfterGraduate() public {
     //     // buy token first
     //     vm.startPrank(user);
@@ -113,7 +116,7 @@ contract LiquidityPairsTest is Test {
     // function testSellAfterGraduate() public {
     //     // buy token first
     //     vm.startPrank(user);
-    //     liquidityPairs.buy{value: 30 ether}();
+    //     liquidityPairs.buy{value: 30 ether}(0);
     //     vm.stopPrank();
     //     // sell token
     //     vm.startPrank(user);

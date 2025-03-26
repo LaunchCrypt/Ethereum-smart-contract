@@ -27,7 +27,6 @@ contract LiquidityPairs {
     error LiquidityPairs__InsufficientFunds();
     error LiquidityPairs__MustBeGreaterThanZero();
     error LiquidityPairs__PairAlreadyLock();
-    error LiquidityPairs__InsufficientLiquidity();
     error LiquidityPairs__SurpassSlippage();
 
     /*//////////////////////////////////////////////////////////////

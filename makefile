@@ -33,7 +33,7 @@ compile:
 	forge compile
 
 verify-contract:
-	forge verify-contract 0x4AC2F7C9D5Be84837e1B107A6E3Ae0533c54B386 LiquidityPairs --rpc-url $(RPC_URL)
+	forge verify-contract 0x9688197c974B703F61B3B98eC1dDAeB07beC4379 Staking --rpc-url $(RPC_URL)
 
 verify-tokenFactory:
 	forge verify-contract 0x303078b83c52Ee1cCa682C54cC6c075267c2256e TokenFactory --rpc-url $(RPC_URL)

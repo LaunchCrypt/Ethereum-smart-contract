@@ -14,7 +14,7 @@ contract DeployTokenFactory is Script {
         return TokenFactory(proxy);
     }
 
-    function deployTokenFactory() public returns(address) {
+    function deployTokenFactory() public returns (address) {
         vm.startBroadcast();
         TokenFactory tokenFactory = new TokenFactory();
         bytes memory initData = abi.encodeWithSelector(TokenFactory.initialize.selector, "");

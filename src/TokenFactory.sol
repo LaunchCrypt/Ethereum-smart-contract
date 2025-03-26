@@ -25,7 +25,6 @@ contract TokenFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     //////////////////////////////////////////////////////////////*/
     address public tokenAddress;
 
-
     /*//////////////////////////////////////////////////////////////
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
@@ -44,7 +43,6 @@ contract TokenFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         __Ownable_init(msg.sender); // sets owner to: owner = msg.sender
         __UUPSUpgradeable_init();
     }
-
 
     /*//////////////////////////////////////////////////////////////
                            EXTERNAL FUNCTION
@@ -83,5 +81,4 @@ contract TokenFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     // The following functions are overrides required by Solidity.
     function _authorizeUpgrade(address _newImplementation) internal override onlyOwner {}
-
 }
