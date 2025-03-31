@@ -22,6 +22,13 @@ deployTokenFactory:
 deployStaking:
 	forge script script/DeployStaking.s.sol:DeployStaking --rpc-url $(RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY)
 
+deployTradingPairFactory:
+	forge script script/DeployTradingPairFactory.s.sol:DeployTradingPairFactory --rpc-url $(RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY)
+
+upgradeTradingPairFactory:
+	forge script script/UpgradeTradingPairFactory.s.sol:UpgradeTradingPairFactory --rpc-url $(RPC_URL) \
+	 --account defaultKey --sender 0xd2826132FBD5962338e2A37DdC5345A6fE3e6640 --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY)
+	
 upgradeStaking:
 	forge script script/UpgradeStaking.s.sol:UpgradeStaking --rpc-url $(RPC_URL) \
 	 --account defaultKey --sender 0xd2826132FBD5962338e2A37DdC5345A6fE3e6640 --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY)
@@ -38,3 +45,8 @@ verify-contract:
 verify-tokenFactory:
 	forge verify-contract 0x303078b83c52Ee1cCa682C54cC6c075267c2256e TokenFactory --rpc-url $(RPC_URL)
 
+verify-tradingPairFactory:
+	forge verify-contract 0xE20B0f9E1C328f5F2387Fbd19e30c9607a0370a5 TradingPairFactory --rpc-url $(RPC_URL)
+
+verify-tradingPairs: 
+	forge verify-contract 0x99c55F57EfdE5856b4509654cC43138680Ac9abD TradingPairs --rpc-url $(RPC_URL) --api-key $(ETHERSCAN_API_KEY)
