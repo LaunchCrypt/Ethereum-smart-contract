@@ -3,17 +3,20 @@ pragma solidity ^0.8.20;
 
 import {IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {ERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import {MathLib} from "./library/MathLib.sol";
 
 contract TradingPairs is ERC20 {
+    using MathLib for uint256;
     /*//////////////////////////////////////////////////////////////
                                 CONSTANT
     //////////////////////////////////////////////////////////////*/
+
     uint256 public constant DECIMALS = 18;
 
     /*//////////////////////////////////////////////////////////////
                               STATE VARIABLE
     //////////////////////////////////////////////////////////////*/
-    uint256 public constant MINIMUM_LIQUIDITY = 10 ** 34; // 0.1 x 0.1
+    uint256 public constant MINIMUM_LIQUIDITY = 10 ** 17; // sqrt(0.1 x 0.1)
     uint256 public constant FEE = 3; // 0.3%
     uint256 public constant BASE_LP = 10 ether;
     address public tokenA;
@@ -93,15 +96,15 @@ contract TradingPairs is ERC20 {
     function addLiquidity(uint256 amountA, uint256 amountB) external {
         uint256 reserveA = IERC20(tokenA).balanceOf(address(this));
         uint256 reserveB = IERC20(tokenB).balanceOf(address(this));
-        uint256 totalLiquidity = reserveA * reserveB;
+        uint256 provideLiquidity = MathLib.sqrt(amountA * amountB);
+        uint256 totalLiquidity = MathLib.sqrt(reserveA * reserveB);
 
-        if (amountA * amountB < MINIMUM_LIQUIDITY) {
+        if (provideLiquidity < MINIMUM_LIQUIDITY) {
             revert TradingPairs__InsufficientLiquidity();
         }
 
         if (reserveA == 0 && reserveB == 0) {
-            uint256 provideLiquidity = amountA * amountB;
-            uint256 lpAmount = provideLiquidity / MINIMUM_LIQUIDITY * BASE_LP; 
+            uint256 lpAmount = provideLiquidity / MINIMUM_LIQUIDITY * BASE_LP;
             _mint(msg.sender, lpAmount);
             emit addLiquidityToken(msg.sender, tokenA, tokenB, amountA, amountB);
             IERC20(tokenA).transferFrom(msg.sender, address(this), amountA);
@@ -110,16 +113,16 @@ contract TradingPairs is ERC20 {
             uint256 currentPrice = (reserveB * DECIMALS) / reserveA;
             if ((amountB * DECIMALS) / amountA > currentPrice) {
                 uint256 amountBDesired = (amountA * reserveB) / reserveA;
-                uint256 liquidityProvide = amountBDesired * amountA;
-                uint256 totalLPReceive = liquidityProvide * totalSupply() / totalLiquidity; 
+                uint256 liquidityProvide = MathLib.sqrt(amountBDesired * amountA);
+                uint256 totalLPReceive = liquidityProvide * totalSupply() / totalLiquidity;
                 _mint(msg.sender, totalLPReceive);
                 IERC20(tokenA).transferFrom(msg.sender, address(this), amountA);
                 IERC20(tokenB).transferFrom(msg.sender, address(this), amountBDesired);
                 emit addLiquidityToken(msg.sender, tokenA, tokenB, amountA, amountBDesired);
             } else if ((amountB * DECIMALS) / amountA < currentPrice) {
                 uint256 amountADesired = (amountB * reserveA) / reserveB;
-                uint256 liquidityProvide = amountADesired * amountB;
-                uint256 totalLPReceive = liquidityProvide * totalSupply() / totalLiquidity; 
+                uint256 liquidityProvide = MathLib.sqrt(amountADesired * amountB);
+                uint256 totalLPReceive = liquidityProvide * totalSupply() / totalLiquidity;
                 _mint(msg.sender, totalLPReceive);
                 IERC20(tokenA).transferFrom(msg.sender, address(this), amountADesired);
                 IERC20(tokenB).transferFrom(msg.sender, address(this), amountB);
