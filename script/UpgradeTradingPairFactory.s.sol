@@ -11,7 +11,7 @@ contract UpgradeTradingPairFactory is Script {
         TradingPairFactory tradingPairFactory = new TradingPairFactory();
         vm.stopBroadcast();
         address proxy =
-            upgradeTradingPairFactory(0xd2FE981F77e28212e5e7dCDdf892f0a9174f4b84, address(tradingPairFactory));
+            upgradeTradingPairFactory(0xbDBb01588BA0817aB9D2050DE32B8911348d4307, address(tradingPairFactory));
         return proxy;
     }
 

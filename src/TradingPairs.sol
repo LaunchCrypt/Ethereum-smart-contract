@@ -127,6 +127,13 @@ contract TradingPairs is ERC20 {
                 IERC20(tokenA).transferFrom(msg.sender, address(this), amountADesired);
                 IERC20(tokenB).transferFrom(msg.sender, address(this), amountB);
                 emit addLiquidityToken(msg.sender, tokenA, tokenB, amountADesired, amountB);
+            } else if ((amountB * DECIMALS) / amountA == currentPrice) {
+                uint256 liquidityProvide = MathLib.sqrt(amountA * amountB);
+                uint256 totalLPReceive = liquidityProvide * totalSupply() / totalLiquidity;
+                _mint(msg.sender, totalLPReceive);
+                IERC20(tokenA).transferFrom(msg.sender, address(this), amountA);
+                IERC20(tokenB).transferFrom(msg.sender, address(this), amountB);
+                emit addLiquidityToken(msg.sender, tokenA, tokenB, amountA, amountB);
             }
         }
     }

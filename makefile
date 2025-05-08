@@ -49,4 +49,4 @@ verify-tradingPairFactory:
 	forge verify-contract 0xE20B0f9E1C328f5F2387Fbd19e30c9607a0370a5 TradingPairFactory --rpc-url $(RPC_URL)
 
 verify-tradingPairs: 
-	forge verify-contract 0x99c55F57EfdE5856b4509654cC43138680Ac9abD TradingPairs --rpc-url $(RPC_URL) --api-key $(ETHERSCAN_API_KEY)
+	forge verify-contract 0x834e0225e2b96186dc264ECdbC2165F66Baf02D3 src/TradingPairs.sol:TradingPairs --rpc-url $(RPC_URL) --api-key $(ETHERSCAN_API_KEY)
